@@ -14,7 +14,8 @@ class MyBudgetApplication : Application() {
         BudgetRepository(
             tagDao = database.tagDao(),
             expenseDao = database.expenseDao(),
-            budgetDao = database.budgetDao()
+            budgetDao = database.budgetDao(),
+            preparedFoodDao = database.preparedFoodDao()
         )
     }
 }

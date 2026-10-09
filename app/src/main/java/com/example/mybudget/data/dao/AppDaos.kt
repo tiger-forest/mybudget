@@ -9,6 +9,7 @@ import androidx.room.Update
 import com.example.mybudget.data.model.BudgetPreference
 import com.example.mybudget.data.model.ExpenseEntity
 import com.example.mybudget.data.model.MonthlyBudgetEntity
+import com.example.mybudget.data.model.PreparedFoodEntity
 import com.example.mybudget.data.model.TagEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -76,4 +77,28 @@ interface BudgetDao {
 
     @Query("DELETE FROM monthly_budgets WHERE year = :year AND month = :month")
     suspend fun deleteMonthlyBudget(year: Int, month: Int)
+}
+
+@Dao
+interface PreparedFoodDao {
+    @Query("SELECT * FROM prepared_foods ORDER BY id ASC")
+    fun getAllPreparedFoods(): Flow<List<PreparedFoodEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFood(food: PreparedFoodEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFoods(foods: List<PreparedFoodEntity>)
+
+    @Update
+    suspend fun updateFood(food: PreparedFoodEntity)
+
+    @Delete
+    suspend fun deleteFood(food: PreparedFoodEntity)
+
+    @Query("DELETE FROM prepared_foods WHERE id = :id")
+    suspend fun deleteFoodById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM prepared_foods")
+    suspend fun getFoodCount(): Int
 }

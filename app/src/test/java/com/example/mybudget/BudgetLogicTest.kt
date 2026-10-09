@@ -79,4 +79,44 @@ class BudgetLogicTest {
         assertEquals(1400.0, remaining, 0.001)
         assertEquals(0.3f, progress, 0.001f)
     }
+
+    @Test
+    fun testPreparedFoodMealCostCalculation() {
+        val biscuit = com.example.mybudget.data.model.PreparedFoodEntity(
+            id = 1,
+            name = "压缩饼干",
+            price = 1.8,
+            unit = "块",
+            category = "应急代餐"
+        )
+        val noodles = com.example.mybudget.data.model.PreparedFoodEntity(
+            id = 2,
+            name = "桶装泡面",
+            price = 4.5,
+            unit = "桶",
+            category = "速食主食"
+        )
+        val sausage = com.example.mybudget.data.model.PreparedFoodEntity(
+            id = 3,
+            name = "火腿肠",
+            price = 1.5,
+            unit = "根",
+            category = "佐餐加料"
+        )
+
+        val foodList = listOf(biscuit, noodles, sausage)
+        // 比如这顿饭吃了：1桶泡面 + 2根火腿肠
+        val selectedCounts = mapOf(2L to 1, 3L to 2)
+
+        val mealCost = foodList.sumOf { food ->
+            val count = selectedCounts[food.id] ?: 0
+            food.price * count
+        }
+        // 4.5 * 1 + 1.5 * 2 = 7.5
+        assertEquals(7.5, mealCost, 0.001)
+
+        val canteenBaseline = 15.0
+        val saved = canteenBaseline - mealCost
+        assertEquals(7.5, saved, 0.001)
+    }
 }

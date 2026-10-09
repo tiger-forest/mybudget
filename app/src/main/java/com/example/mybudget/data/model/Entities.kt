@@ -56,3 +56,18 @@ data class MonthlyBudgetEntity(
     val month: Int,
     val budget: Double
 )
+
+/**
+ * 预制/囤货食品实体
+ * 记录单价、单位、分类，用于不去食堂时代餐、自备餐的成本核算与管理
+ */
+@Entity(tableName = "prepared_foods")
+data class PreparedFoodEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val name: String,
+    val price: Double,
+    val unit: String = "份", // 计量单位：如 包、桶、块、根、个、盒
+    val category: String = "速食主食", // 分类：速食主食、佐餐加料、应急代餐、冲饮零食
+    val note: String = ""
+)

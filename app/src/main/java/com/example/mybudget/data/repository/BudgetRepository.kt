@@ -2,22 +2,26 @@ package com.example.mybudget.data.repository
 
 import com.example.mybudget.data.dao.BudgetDao
 import com.example.mybudget.data.dao.ExpenseDao
+import com.example.mybudget.data.dao.PreparedFoodDao
 import com.example.mybudget.data.dao.TagDao
 import com.example.mybudget.data.model.BudgetPreference
 import com.example.mybudget.data.model.ExpenseEntity
 import com.example.mybudget.data.model.MonthlyBudgetEntity
+import com.example.mybudget.data.model.PreparedFoodEntity
 import com.example.mybudget.data.model.TagEntity
 import kotlinx.coroutines.flow.Flow
 
 class BudgetRepository(
     private val tagDao: TagDao,
     private val expenseDao: ExpenseDao,
-    private val budgetDao: BudgetDao
+    private val budgetDao: BudgetDao,
+    private val preparedFoodDao: PreparedFoodDao
 ) {
     val allTags: Flow<List<TagEntity>> = tagDao.getAllTags()
     val allExpenses: Flow<List<ExpenseEntity>> = expenseDao.getAllExpenses()
     val budget: Flow<BudgetPreference?> = budgetDao.getBudget()
     val allMonthlyBudgets: Flow<List<MonthlyBudgetEntity>> = budgetDao.getAllMonthlyBudgets()
+    val allPreparedFoods: Flow<List<PreparedFoodEntity>> = preparedFoodDao.getAllPreparedFoods()
 
     fun getExpensesBetween(startTime: Long, endTime: Long): Flow<List<ExpenseEntity>> {
         return expenseDao.getExpensesBetween(startTime, endTime)
@@ -66,5 +70,21 @@ class BudgetRepository(
 
     suspend fun deleteMonthlyBudget(year: Int, month: Int) {
         budgetDao.deleteMonthlyBudget(year, month)
+    }
+
+    suspend fun insertPreparedFood(food: PreparedFoodEntity): Long {
+        return preparedFoodDao.insertFood(food)
+    }
+
+    suspend fun updatePreparedFood(food: PreparedFoodEntity) {
+        preparedFoodDao.updateFood(food)
+    }
+
+    suspend fun deletePreparedFood(food: PreparedFoodEntity) {
+        preparedFoodDao.deleteFood(food)
+    }
+
+    suspend fun deletePreparedFoodById(id: Long) {
+        preparedFoodDao.deleteFoodById(id)
     }
 }

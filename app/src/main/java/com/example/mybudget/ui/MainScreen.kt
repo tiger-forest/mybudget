@@ -8,9 +8,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Label
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Label
+import androidx.compose.material.icons.outlined.Widgets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,6 +40,7 @@ import com.example.mybudget.ui.components.AddExpenseSheet
 import com.example.mybudget.ui.screens.HomeScreen
 import com.example.mybudget.ui.screens.StatsScreen
 import com.example.mybudget.ui.screens.TagManageScreen
+import com.example.mybudget.ui.screens.ToolsScreen
 import com.example.mybudget.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -49,6 +52,7 @@ sealed class NavTab(
     data object Home : NavTab("账本", Icons.Filled.Home, Icons.Outlined.Home)
     data object Stats : NavTab("统计", Icons.Filled.BarChart, Icons.Outlined.BarChart)
     data object Tags : NavTab("管理", Icons.Filled.Label, Icons.Outlined.Label)
+    data object Tools : NavTab("工具", Icons.Filled.Widgets, Icons.Outlined.Widgets)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,9 +60,10 @@ sealed class NavTab(
 fun MainScreen(viewModel: MainViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val allTags by viewModel.allTags.collectAsState()
+    val allPreparedFoods by viewModel.allPreparedFoods.collectAsState()
 
     var currentTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf(NavTab.Home, NavTab.Stats, NavTab.Tags)
+    val tabs = listOf(NavTab.Home, NavTab.Stats, NavTab.Tags, NavTab.Tools)
 
     var showAddExpenseSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -72,7 +77,8 @@ fun MainScreen(viewModel: MainViewModel) {
                         text = when (currentTabIndex) {
                             0 -> "大学生活费小账本"
                             1 -> "开销维度分析"
-                            else -> "生活费与标签管理"
+                            2 -> "生活费与标签管理"
+                            else -> "生活实用小工具"
                         },
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
@@ -101,12 +107,14 @@ fun MainScreen(viewModel: MainViewModel) {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddExpenseSheet = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "记一笔")
+            if (currentTabIndex != 3) {
+                FloatingActionButton(
+                    onClick = { showAddExpenseSheet = true },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "记一笔")
+                }
             }
         }
     ) { innerPadding ->
@@ -151,6 +159,17 @@ fun MainScreen(viewModel: MainViewModel) {
                     },
                     onUpdateTag = { viewModel.updateTag(it) },
                     onDeleteTag = { viewModel.deleteTag(it) }
+                )
+                3 -> ToolsScreen(
+                    foodList = allPreparedFoods,
+                    onAddFood = { name, price, unit, category, note ->
+                        viewModel.addPreparedFood(name, price, unit, category, note)
+                    },
+                    onUpdateFood = { viewModel.updatePreparedFood(it) },
+                    onDeleteFood = { viewModel.deletePreparedFood(it) },
+                    onRecordMealExpense = { amount, note, onSuccess ->
+                        viewModel.recordPreparedMealExpense(amount, note, onSuccess)
+                    }
                 )
             }
         }

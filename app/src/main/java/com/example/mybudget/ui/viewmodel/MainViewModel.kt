@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.mybudget.data.model.MonthlyBudgetEntity
+import com.example.mybudget.data.model.PreparedFoodEntity
 import com.example.mybudget.data.model.ExpenseEntity
 import com.example.mybudget.data.model.TagEntity
 import com.example.mybudget.data.repository.BudgetRepository
@@ -75,6 +76,12 @@ class MainViewModel(
     val selectedYearMonth: StateFlow<Pair<Int, Int>> = _selectedYearMonth
 
     val allTags = repository.allTags.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    val allPreparedFoods = repository.allPreparedFoods.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
@@ -324,6 +331,74 @@ class MainViewModel(
     fun deleteTag(tag: TagEntity) {
         viewModelScope.launch {
             repository.deleteTag(tag)
+        }
+    }
+
+    fun addPreparedFood(
+        name: String,
+        price: Double,
+        unit: String,
+        category: String,
+        note: String
+    ) {
+        viewModelScope.launch {
+            repository.insertPreparedFood(
+                PreparedFoodEntity(
+                    name = name.trim(),
+                    price = price,
+                    unit = unit.trim().ifEmpty { "份" },
+                    category = category.trim().ifEmpty { "速食主食" },
+                    note = note.trim()
+                )
+            )
+        }
+    }
+
+    fun updatePreparedFood(food: PreparedFoodEntity) {
+        viewModelScope.launch {
+            repository.updatePreparedFood(food)
+        }
+    }
+
+    fun deletePreparedFood(food: PreparedFoodEntity) {
+        viewModelScope.launch {
+            repository.deletePreparedFood(food)
+        }
+    }
+
+    /**
+     * 将这顿自备餐开销快捷记入账本
+     */
+    fun recordPreparedMealExpense(
+        amount: Double,
+        note: String,
+        onSuccess: () -> Unit = {}
+    ) {
+        if (amount <= 0) return
+        viewModelScope.launch {
+            val tags = allTags.value
+            val mealTag = tags.find { it.name == "三餐" }
+                ?: tags.firstOrNull()
+                ?: TagEntity(name = "三餐", icon = "🍜", colorHex = 0xFFFF7043)
+
+            val tagId = if (mealTag.id == 0L) {
+                repository.insertTag(mealTag)
+            } else {
+                mealTag.id
+            }
+
+            repository.insertExpense(
+                ExpenseEntity(
+                    amount = amount,
+                    tagId = tagId,
+                    tagName = mealTag.name,
+                    tagIcon = mealTag.icon,
+                    tagColorHex = mealTag.colorHex,
+                    dateMillis = System.currentTimeMillis(),
+                    note = note
+                )
+            )
+            onSuccess()
         }
     }
 }
