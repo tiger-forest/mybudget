@@ -1,5 +1,6 @@
 package com.example.mybudget.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -90,6 +91,8 @@ fun PreparedFoodToolScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    BackHandler(onBack = onBack)
+
     var selectedTab by remember { mutableIntStateOf(0) }
     // 选购中的食材及份数映射 (foodId -> count)
     val selectedCounts = remember { mutableStateMapOf<Long, Int>() }

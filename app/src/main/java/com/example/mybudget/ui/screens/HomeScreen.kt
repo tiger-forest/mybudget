@@ -87,7 +87,7 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "长按或点击删除误记",
+                    text = "点击 🗑️ 图标可删除误记",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
