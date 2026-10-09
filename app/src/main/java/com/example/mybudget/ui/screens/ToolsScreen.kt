@@ -19,9 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mybudget.data.model.PreparedFoodEntity
@@ -129,7 +128,7 @@ private fun ToolboxHome(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "围绕大学生日常生活场景定制的各种贴心计算与管理工具",
+                            text = "实用校园生活与记账辅助小工具",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                         )
@@ -138,42 +137,16 @@ private fun ToolboxHome(
             }
         }
 
-        // 第一个小工具：预制食品与自备餐成本管理
+        // 小工具：预制食品与自备餐成本管理
         item {
             ToolItemCard(
                 title = "预制食品餐费管理",
                 subtitle = "记录压缩饼干、泡面、加餐等自备囤货单价。不去食堂时随手点选食材，一键算出这顿饭花销并直接记入账本。",
-                badgeText = "已收录 $foodCount 种食品",
+                badgeText = "已收录 $foodCount 种",
                 icon = Icons.Default.Fastfood,
                 iconBackgroundColor = Color(0xFFFF7043),
                 isAvailable = true,
                 onClick = onOpenPreparedFood
-            )
-        }
-
-        // 规划中的小工具卡片 2
-        item {
-            ToolItemCard(
-                title = "学期生活费天数倒计时",
-                subtitle = "根据放假回家倒计时，动态测算本月及后续每日平均可支配生活费指标，告别月底吃土。",
-                badgeText = "规划中",
-                icon = Icons.Default.HourglassTop,
-                iconBackgroundColor = Color(0xFF42A5F5),
-                isAvailable = false,
-                onClick = {}
-            )
-        }
-
-        // 规划中的小工具卡片 3
-        item {
-            ToolItemCard(
-                title = "大学恩格尔系数分析",
-                subtitle = "测算饮食餐饮占每月总开销比例，评估当月是在享受美食还是在冲动消费。",
-                badgeText = "规划中",
-                icon = Icons.Default.Calculate,
-                iconBackgroundColor = Color(0xFFAB47BC),
-                isAvailable = false,
-                onClick = {}
             )
         }
     }
@@ -204,13 +177,13 @@ private fun ToolItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(44.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(iconBackgroundColor.copy(alpha = if (isAvailable) 0.18f else 0.08f)),
                 contentAlignment = Alignment.Center
@@ -225,6 +198,7 @@ private fun ToolItemCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -232,7 +206,10 @@ private fun ToolItemCard(
                         text = title,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = if (isAvailable) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
 
                     Box(
@@ -248,7 +225,9 @@ private fun ToolItemCard(
                             text = badgeText,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                             color = if (isAvailable) MaterialTheme.colorScheme.onPrimaryContainer
-                            else MaterialTheme.colorScheme.outline
+                            else MaterialTheme.colorScheme.outline,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
