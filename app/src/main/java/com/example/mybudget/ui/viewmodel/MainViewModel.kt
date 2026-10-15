@@ -39,6 +39,20 @@ data class DailyExpenseGroup(
     val items: List<ExpenseEntity>
 )
 
+data class MonthBalanceItem(
+    val year: Int,
+    val month: Int,
+    val monthText: String,
+    val budget: Double,
+    val isCustomBudget: Boolean,
+    val totalExpense: Double,
+    val expenseCount: Int,
+    val balance: Double, // budget - totalExpense (正数代表节余，负数代表超支)
+    val isOverBudget: Boolean,
+    val isCurrentMonth: Boolean,
+    val budgetProgress: Float // 支出占比
+)
+
 data class UiState(
     val monthlyBudget: Double = 2000.0, // 当前本月生效预算
     val defaultBudget: Double = 2000.0, // 默认每月生活费基准
@@ -62,7 +76,11 @@ data class UiState(
     val tagStats: List<TagStatItem> = emptyList(),
     val expenseGroups: List<DailyExpenseGroup> = emptyList(),
     val allTags: List<TagEntity> = emptyList(),
-    val customMonthlyBudgets: List<MonthlyBudgetEntity> = emptyList() // 所有已单独设定的月份预算
+    val customMonthlyBudgets: List<MonthlyBudgetEntity> = emptyList(), // 所有已单独设定的月份预算
+    val allMonthBalances: List<MonthBalanceItem> = emptyList(), // 每月结余一览（过滤无开销月份）
+    val totalHistoryBudget: Double = 0.0, // 历史有记账月份的总预算
+    val totalHistoryExpense: Double = 0.0, // 历史有记账月份的总支出
+    val totalHistoryBalance: Double = 0.0 // 历史有记账月份的总结余
 )
 
 class MainViewModel(
@@ -177,6 +195,38 @@ class MainViewModel(
             .distinct()
             .sortedWith(compareByDescending<Pair<Int, Int>> { it.first }.thenByDescending { it.second })
 
+        // 7. 每月结余一览计算（核心规则：如果某月一个开销没有，默认忽略该月）
+        val monthExpensesMap = expenses.groupBy { DateTimeUtils.getYearAndMonth(it.dateMillis) }
+        val allMonthBalances = monthExpensesMap.map { (yearMonth, monthExpList) ->
+            val (year, month) = yearMonth
+            val total = monthExpList.sumOf { it.amount }
+            val count = monthExpList.size
+            val custom = monthlyBudgets.find { it.year == year && it.month == month }
+            val budget = custom?.budget ?: defaultBaseline
+            val balance = budget - total
+            val isOver = balance < 0
+            val isCur = year == curYear && month == curMonth
+            val progress = if (budget > 0) (total / budget).toFloat().coerceIn(0f, 1f) else 0f
+
+            MonthBalanceItem(
+                year = year,
+                month = month,
+                monthText = DateTimeUtils.formatYearMonth(year, month),
+                budget = budget,
+                isCustomBudget = custom != null,
+                totalExpense = total,
+                expenseCount = count,
+                balance = balance,
+                isOverBudget = isOver,
+                isCurrentMonth = isCur,
+                budgetProgress = progress
+            )
+        }.sortedWith(compareByDescending<MonthBalanceItem> { it.year }.thenByDescending { it.month })
+
+        val totalHistBudget = allMonthBalances.sumOf { it.budget }
+        val totalHistExpense = allMonthBalances.sumOf { it.totalExpense }
+        val totalHistBalance = totalHistBudget - totalHistExpense
+
         val isCurrentMonth = selYear == curYear && selMonth == curMonth
 
         UiState(
@@ -202,7 +252,11 @@ class MainViewModel(
             tagStats = stats,
             expenseGroups = expenseGroups,
             allTags = tags,
-            customMonthlyBudgets = monthlyBudgets
+            customMonthlyBudgets = monthlyBudgets,
+            allMonthBalances = allMonthBalances,
+            totalHistoryBudget = totalHistBudget,
+            totalHistoryExpense = totalHistExpense,
+            totalHistoryBalance = totalHistBalance
         )
     }.stateIn(
         scope = viewModelScope,

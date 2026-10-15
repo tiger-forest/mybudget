@@ -59,12 +59,18 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import com.example.mybudget.ui.components.DonutChart
+import com.example.mybudget.ui.components.MonthlyBalanceSheet
 import com.example.mybudget.ui.viewmodel.TagStatItem
 import com.example.mybudget.ui.viewmodel.TimeRange
 import com.example.mybudget.ui.viewmodel.UiState
 import com.example.mybudget.util.DateTimeUtils
+import kotlin.math.abs
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
     uiState: UiState,
@@ -78,6 +84,8 @@ fun StatsScreen(
 ) {
     var showMonthPickerDialog by remember { mutableStateOf(false) }
     var showEditSelectedMonthBudgetDialog by remember { mutableStateOf(false) }
+    var showMonthlyBalanceSheet by remember { mutableStateOf(false) }
+    val balanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val timeRanges = listOf(TimeRange.TODAY, TimeRange.THIS_WEEK, TimeRange.THIS_MONTH)
     val selectedIndex = timeRanges.indexOf(uiState.selectedTimeRange)
@@ -106,6 +114,80 @@ fun StatsScreen(
                                 fontWeight = if (selectedIndex == index) FontWeight.Bold else FontWeight.Normal
                             )
                         }
+                    )
+                }
+            }
+        }
+
+        item {
+            // 每月结余一览入口按钮卡片
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { showMonthlyBalanceSheet = true },
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 11.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Savings,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "每月结余一览",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                if (uiState.allMonthBalances.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "共${uiState.allMonthBalances.size}个月",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            Text(
+                                text = if (uiState.allMonthBalances.isNotEmpty()) {
+                                    val isPos = uiState.totalHistoryBalance >= 0
+                                    "历史累计${if (isPos) "节余" else "超支"} ¥${String.format("%.2f", abs(uiState.totalHistoryBalance))} · 点击查看明细"
+                                } else {
+                                    "查看所有历史月份的预算与结余对比"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "查看每月结余",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -453,6 +535,22 @@ fun StatsScreen(
                 TextButton(onClick = { showEditSelectedMonthBudgetDialog = false }) {
                     Text("取消")
                 }
+            }
+        )
+    }
+
+    // 每月结余一览底部抽屉面板
+    if (showMonthlyBalanceSheet) {
+        MonthlyBalanceSheet(
+            sheetState = balanceSheetState,
+            monthBalances = uiState.allMonthBalances,
+            totalHistoryBudget = uiState.totalHistoryBudget,
+            totalHistoryExpense = uiState.totalHistoryExpense,
+            totalHistoryBalance = uiState.totalHistoryBalance,
+            onDismiss = { showMonthlyBalanceSheet = false },
+            onSelectMonth = { year, month ->
+                onSelectTimeRange(TimeRange.THIS_MONTH)
+                onSelectYearMonth(year, month)
             }
         )
     }

@@ -4,7 +4,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-blue.svg)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg)](https://developer.android.com/jetpack/compose)
 [![Room](https://img.shields.io/badge/Room-Database-orange.svg)](https://developer.android.com/training/data-storage/room)
-[![Version](https://img.shields.io/badge/Version-1.1.2-brightgreen.svg)]()
+[![Version](https://img.shields.io/badge/Version-1.2.0-brightgreen.svg)]()
 
 **MyBudget** 是一款专为学生及青年群体打造的轻量级生活费预算与记账应用。采用现代 Android 开发技术栈（纯 Kotlin + Jetpack Compose + Material 3 + Room 本地数据库），拒绝繁琐复杂的功能，专注于生活费规划、直观消费追踪与生活成本管理。数据 100% 存储于本地，无多余权限，保护个人隐私。
 
@@ -21,9 +21,10 @@
   - 支持自定义标签：Emoji 图标、颜色分类。
   - **特色「频次统计」支持**：可针对特定兴趣/高频消费（如奶茶、谷子/潮玩等）单独开启消费次数统计，精准掌握消费习惯。
 
-- 📊 **可视化统计看板**：
+- 📊 **可视化统计看板与每月结余一览**：
   - 精美的交互式环形消费图表（Donut Chart）。
   - 按月查看支出总览、分类占比，支出结构一目了然。
+  - **每月结余一览**：跨月历史结余对比面板，直观查看所有有记账月份的预算、总开销与结余/超支情况（自动忽略无消费月份），展示历史累计总结余，并支持点击一键切换至该月详细图表。
 
 - 🧰 **百宝箱 (实用工具库)**：
   - **预制/囤货食品成本管家**：记录速食、代餐、零食、佐餐等的单价与规格（包/桶/块），方便计算自备餐食成本与精打细算。
@@ -96,6 +97,10 @@ MyBudget/
 
 ## 📝 版本历史
 
+- **v1.2.0**
+  - 统计页面新增「每月结余一览」入口与全景抽屉面板。
+  - 支持汇总所有历史月份的预算、实际支出与结余/超支对比，自动忽略未产生开销的月份。
+  - 提供历史累计节余/超支总看板与预算执行进度条，支持点击直接跳转并查看任意月份图表。
 - **v1.1.2**
   - 优化工具箱二级页面的手势返回与导航交互。
   - 细节体验与动画优化。
