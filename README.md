@@ -4,7 +4,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-blue.svg)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg)](https://developer.android.com/jetpack/compose)
 [![Room](https://img.shields.io/badge/Room-Database-orange.svg)](https://developer.android.com/training/data-storage/room)
-[![Version](https://img.shields.io/badge/Version-1.2.0-brightgreen.svg)]()
+[![Version](https://img.shields.io/badge/Version-1.2.1-brightgreen.svg)]()
 
 **MyBudget** 是一款专为学生及青年群体打造的轻量级生活费预算与记账应用。采用现代 Android 开发技术栈（纯 Kotlin + Jetpack Compose + Material 3 + Room 本地数据库），拒绝繁琐复杂的功能，专注于生活费规划、直观消费追踪与生活成本管理。数据 100% 存储于本地，无多余权限，保护个人隐私。
 
@@ -97,6 +97,8 @@ MyBudget/
 
 ## 📝 版本历史
 
+- **v1.2.1**
+  - 修复「每月结余一览」组件中缺失 `Icons` 引用导致编译报错的问题。
 - **v1.2.0**
   - 统计页面新增「每月结余一览」入口与全景抽屉面板。
   - 支持汇总所有历史月份的预算、实际支出与结余/超支对比，自动忽略未产生开销的月份。
